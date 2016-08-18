@@ -62,7 +62,7 @@ def tcpip4_socket(host, port):
 class NER(object):
   """Wrapper for server-based Stanford NER tagger."""
 
-  def __init__(self, host='localhost', port=80, output_format='inlineXML'):
+  def __init__(self, host='localhost', port=9191, output_format='inlineXML'):
     if output_format not in ('slashTags', 'xml', 'inlineXML'):
       raise ValueError('Output format %s is invalid.' % output_format)
     self.host = host
@@ -81,7 +81,7 @@ class NER(object):
     for s in ('\f', '\n', '\r', '\t', '\v'):
       text = text.replace(s, '')
     text += '\n'
-    with tcpip4_socket(self.host, 9191) as s:
+    with tcpip4_socket(self.host, port) as s:
       print self.host,self.port,text
       s.sendall(text)
       tagged_text = s.recv(10 * len(text))
@@ -173,7 +173,7 @@ if __name__ == '__main__':
   start_ner_server(STANFORD_PARSER, STANFORD_MODEL)
   print 'Starting HTTP proxy server...'
   try:
-    port = 80 # Reserve a port for your service
+    port = 9191 # Reserve a port for your service
     server = BaseHTTPServer.HTTPServer(('', port), HttpHandler)
     server.serve_forever()
   except KeyboardInterrupt:
