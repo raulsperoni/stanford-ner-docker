@@ -13,27 +13,30 @@ from itertools import groupby
 from operator import itemgetter
 
 
-STANFORD_PARSER = os.path.abspath('stanford-ner.jar')
-STANFORD_MODEL = os.path.abspath(
-  'classifiers/english.all.7class.distsim.crf.ser.gz')
+STANFORD_PARSER = os.path.abspath(os.environ['STANFORD_NER_JAR'])
+STANFORD_MODEL = os.path.abspath(os.environ['STANFORD_NER_MODEL'])
 SLASHTAGS_EPATTERN = re.compile(r'(.+?)/([A-Z]+)?\s*')
 XML_EPATTERN = re.compile(r'<wi num=".+?" entity="(.+?)">(.+?)</wi>')
 INLINEXML_EPATTERN = re.compile(r'<([A-Z]+?)>(.+?)</\1>')
-
+JAVA_MEM = '' #'-Xmx900m'
 
 def start_ner_server(parser, model):
   devnull = open('/dev/null', 'w')
-  return subprocess.Popen([
+  command = [
     'java',
-    '-Xmx900m',
+    JAVA_MEM,
     '-cp',
     parser,
     'edu.stanford.nlp.ie.NERServer',
+    '-port',
+    '9191',
     '-loadClassifier',
     model,
     '-outputFormat',
     'inlineXML'
-  ], stdout=devnull, stderr=devnull)
+  ]
+  print command
+  return subprocess.Popen(command, stdout=devnull, stderr=devnull)
 
 
 @contextlib.contextmanager
@@ -47,8 +50,10 @@ def tcpip4_socket(host, port):
     try:
       s.shutdown(socket.SHUT_RDWR)
     except socket.error:
+      print 'socketERROR'
       pass
     except OSError:
+      print 'osERROR'
       pass
     finally:
       s.close()
@@ -57,7 +62,7 @@ def tcpip4_socket(host, port):
 class NER(object):
   """Wrapper for server-based Stanford NER tagger."""
 
-  def __init__(self, host='localhost', port=4465, output_format='inlineXML'):
+  def __init__(self, host='localhost', port=80, output_format='inlineXML'):
     if output_format not in ('slashTags', 'xml', 'inlineXML'):
       raise ValueError('Output format %s is invalid.' % output_format)
     self.host = host
@@ -76,7 +81,8 @@ class NER(object):
     for s in ('\f', '\n', '\r', '\t', '\v'):
       text = text.replace(s, '')
     text += '\n'
-    with tcpip4_socket(self.host, self.port) as s:
+    with tcpip4_socket(self.host, 9191) as s:
+      print self.host,self.port,text
       s.sendall(text)
       tagged_text = s.recv(10 * len(text))
     return tagged_text
@@ -139,6 +145,7 @@ class HttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     if query is None:
       return self.send_response(400)
     try:
+      print query
       entities = self.ner.json_entities(query)
     except socket.error as e:
       print e
@@ -166,7 +173,8 @@ if __name__ == '__main__':
   start_ner_server(STANFORD_PARSER, STANFORD_MODEL)
   print 'Starting HTTP proxy server...'
   try:
-    server = BaseHTTPServer.HTTPServer(('0.0.0.0', 80), HttpHandler)
+    port = 80 # Reserve a port for your service
+    server = BaseHTTPServer.HTTPServer(('', port), HttpHandler)
     server.serve_forever()
   except KeyboardInterrupt:
     print('Stopping NER server..')
