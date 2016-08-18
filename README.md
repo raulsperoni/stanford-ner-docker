@@ -1,4 +1,4 @@
-# Stanford NER Docker
+# Spanish Stanford NER Docker
 Dockerfile with [Stanford Named Entity Recognizer](https://github.com/stanfordnlp/CoreNLP/tree/master/doc/ner).
 
 ## Base Docker Image
