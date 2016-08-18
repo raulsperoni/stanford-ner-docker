@@ -19,4 +19,4 @@ WORKDIR /stanford
 ADD run.py run.py
 
 ENTRYPOINT ["python", "-u", "/stanford/run.py"]
-EXPOSE 80
+EXPOSE 9191

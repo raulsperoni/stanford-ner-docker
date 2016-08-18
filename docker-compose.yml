@@ -1,6 +1,6 @@
 stanford-ner:
   build: .
   ports:
-    - "127.0.0.1:8383:80"
+    - "9191:9191"
   restart: always
 
