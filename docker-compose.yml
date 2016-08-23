@@ -2,5 +2,9 @@ stanford-ner:
   build: .
   ports:
     - "9191:9191"
+  volumes:
+    - ./stanford:/stanford
   restart: always
-
+  environment:
+    - STANFORD_NER_MODEL=stanford-ner-2015-04-20/classifiers/english.all.3class.distsim.crf.ser.gz
+    - STANFORD_NER_JAR=stanford-ner-2015-04-20/stanford-ner.jar
