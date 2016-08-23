@@ -10,3 +10,4 @@ WORKDIR /stanford
 
 ENTRYPOINT ["python", "-u", "/run.py"]
 EXPOSE 9191
+EXPOSE 9190
