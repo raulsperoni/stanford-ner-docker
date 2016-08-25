@@ -3,13 +3,18 @@ stanford-ner:
   ports:
     - "9191:9191"
     - "9190:9190"
+    - "5000:5000"
   volumes:
     - ./stanford:/stanford
+    - ./:/opt
+  command: python -u /opt/run.py
   restart: always
   environment:
-    - STANFORD_NER_MODEL=stanford-ner-2015-04-20/classifiers/english.all.3class.distsim.crf.ser.gz
-    - STANFORD_NER_JAR=stanford-ner-2015-04-20/stanford-ner.jar
-    - STANFORD_POS_MODEL=stanford-postagger-full-2015-12-09/models/spanish.tagger
-    - STANFORD_POS_JAR=stanford-postagger-full-2015-12-09/stanford-postagger.jar
-    - STANFORD_POS_LIB=stanford-postagger-full-2015-12-09/lib/slf4j-api.jar 
+    - STANFORD_NER_FOLDER=stanford-ner-2015-04-20
+    - STANFORD_NER_MODEL=custom-ner-model.ser.gz
+    - STANFORD_NER_JAR=stanford-ner.jar
+    - STANFORD_POS_FOLDER=stanford-postagger-full-2015-12-09
+    - STANFORD_POS_MODEL=spanish.tagger
+    - STANFORD_POS_JAR=stanford-postagger.jar
+    - STANFORD_POS_LIB=slf4j-api.jar 
 
