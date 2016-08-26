@@ -41,16 +41,21 @@ def ner_start(model):
 
 @app.route('/ner/stop')
 def ner_stop():
+    global ner_process
     if ner_process:
+        ner_process.terminate()
         ner_process.kill()
+        ner_process = None
         return jsonify(message='Deteniendo Stanford NER server')
     else:
         return jsonify(message='No esta iniciado')
         
 @app.route('/ner/status')
 def ner_status():
-    if ner_process:
+    if ner_process and not ner_process.poll():
         return jsonify(status='ON')
+    elif ner_process:
+        return jsonify(status='OFF',code=ner_process.returncode)
     else:
         return jsonify(status='OFF')
 
@@ -77,7 +82,8 @@ def pos_stop():
 @app.route('/pos/status')
 def pos_status():
     if pos_process:
-        return jsonify(status='ON')
+        pos_process.poll()
+        return jsonify(status='ON',code=pos_process.returncode)
     else:
         return jsonify(status='OFF')
 
