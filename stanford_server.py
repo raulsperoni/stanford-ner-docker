@@ -26,7 +26,8 @@ JAVA_MEM = '-Xmx900m'
 STANFORD_NER_PORT = '9191'
 STANFORD_POS_PORT = '9190'
 
-def start_ner_server(parser=STANFORD_NER_PARSER, model=STANFORD_NER_MODEL,mem=JAVA_MEM,port=STANFORD_NER_PORT,lib=STANFORD_NER_LIB):
+def start_ner_server(model=STANFORD_NER_MODEL,parser=STANFORD_NER_PARSER,mem=JAVA_MEM,port=STANFORD_NER_PORT,lib=STANFORD_NER_LIB):
+  model = os.path.abspath(os.path.join(STANFORD_NER_FOLDER,'classifiers',model))
   if lib:
      parser = parser + ':' + lib
   command = [

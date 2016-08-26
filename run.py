@@ -27,11 +27,11 @@ def allowed_file(filename):
 def hello_world():
     return 'Hello, World!'
 
-@app.route('/ner/start')
-def ner_start():
+@app.route('/ner/start/<model>')
+def ner_start(model):
     global ner_process
     if not ner_process:
-        (ner_process,themodel,theport) = stanford.start_ner_server()
+        (ner_process,themodel,theport) = stanford.start_ner_server(model)
         return jsonify(message='Iniciando Stanford NER server',
                        host=socket.gethostbyname(socket.gethostname()),
                        port=theport,
