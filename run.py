@@ -73,17 +73,21 @@ def pos_start():
 
 @app.route('/pos/stop')
 def pos_stop():
+    global pos_process
     if pos_process:
+        pos_process.terminate()
         pos_process.kill()
+        pos_process = None
         return jsonify(message='Deteniendo Stanford POS server')
     else:
         return jsonify(message='No esta iniciado')
         
 @app.route('/pos/status')
 def pos_status():
-    if pos_process:
-        pos_process.poll()
-        return jsonify(status='ON',code=pos_process.returncode)
+    if pos_process and not pos_process.poll():
+        return jsonify(status='ON')
+    elif pos_process:
+        return jsonify(status='OFF',code=pos_process.returncode)
     else:
         return jsonify(status='OFF')
 
@@ -108,6 +112,7 @@ def ner_train():
             (ner_train_process,cmd) = stanford.do_ner_train(ner_train_filename)
             out, err = ner_train_process.communicate()
             thestatus = ner_train_process.wait()
+            ner_train_process = None
             return jsonify(command=cmd,message=out,error=err,status=thestatus)
         elif not ner_train_filename:
             return jsonify(status='ERROR',message='Debe enviar archivo de entrenamiento')
